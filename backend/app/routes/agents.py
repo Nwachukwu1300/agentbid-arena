@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, Query
 from uuid import UUID
 
-from app.models.agent import Agent, AgentCreate, AgentUpdate, AgentSpecialty, MAX_AGENTS_PER_USER
+from app.models.agent import Agent, AgentBase, AgentCreate, AgentUpdate, AgentSpecialty, MAX_AGENTS_PER_USER
 from app.services.database import DatabaseService, get_database_service
 from app.services.agent_service import AgentService
 from app.auth import get_current_user_id, get_optional_user_id
@@ -78,7 +78,7 @@ async def get_my_agents(
 
 @router.post("", response_model=Agent, status_code=201)
 async def create_agent(
-    agent_data: AgentCreate,
+    agent_data: AgentBase,
     service: AgentService = Depends(get_agent_service),
     current_user_id: UUID = Depends(get_current_user_id),
 ) -> Agent:
@@ -90,13 +90,8 @@ async def create_agent(
     if len(await service.get_by_user_id(current_user_id)) >= MAX_AGENTS_PER_USER:
         raise HTTPException(status_code=409, detail=f"You can have at most {MAX_AGENTS_PER_USER} agents. Delete one to make room.")
 
-    # Override user_id with authenticated user (ignore any user_id in request)
-    agent_data_dict = agent_data.model_dump()
-    agent_data_dict["user_id"] = current_user_id
-
-    # Recreate with correct user_id
-    secured_agent_data = AgentCreate(**agent_data_dict)
-    return await service.create(secured_agent_data)
+    # The body carries no user_id: the owner is always the authenticated user
+    return await service.create(AgentCreate(**agent_data.model_dump(), user_id=current_user_id))
 
 
 @router.put("/{agent_id}", response_model=Agent)

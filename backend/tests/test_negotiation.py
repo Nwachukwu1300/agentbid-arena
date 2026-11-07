@@ -522,6 +522,12 @@ async def builder_and_style():
                                              "negotiation_style": "Never budge.", "user_id": str(owner)})
         assert r.status_code == 201 and r.json()["negotiation_style"] == "Never budge."
         agent_id = r.json()["id"]
+        # The website sends no user_id: the owner comes from the login, and a forged user_id in the body is ignored
+        r = client.post("/api/agents", json={"name": "Paper", "specialty": "coder", "auction_instructions": "Bid high.",
+                                             "user_id": str(uuid.uuid4())})
+        assert r.status_code == 201 and r.json()["user_id"] == str(owner), "owner is taken from the login"
+        r = client.post("/api/agents", json={"name": "Scissors", "specialty": "coder", "auction_instructions": "Bid mid."})
+        assert r.status_code == 201 and r.json()["user_id"] == str(owner), "creating without a user_id works"
         r = client.put(f"/api/agents/{agent_id}", json={"negotiation_style": "Split the difference."})
         assert r.status_code == 200 and r.json()["negotiation_style"] == "Split the difference."
         assert client.get(f"/api/agents/{agent_id}").json()["negotiation_style"] == "Split the difference."
