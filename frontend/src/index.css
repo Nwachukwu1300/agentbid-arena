@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Archivo, self-hosted: one variable file covers every width (62-125%) and weight */
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+  src: url('/fonts/archivo-latin.woff2') format('woff2');
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-background text-text-primary antialiased;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    caret-color: #1F5C43;
+  }
+
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  p, li, dd {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: #F0B93A;
+    color: #18201B;
+  }
+
+  a {
+    text-underline-offset: 3px;
+  }
+
+  :focus-visible {
+    outline: 2px solid #1F5C43;
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background-secondary;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border-light rounded-full;
+    border: 2px solid #DCE4DA;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-text-muted;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* A card-stock piece on the board */
+  .card {
+    @apply bg-background-card border border-ink/80 rounded-lg p-4 shadow-piece;
+  }
+
+  .card-hover {
+    @apply card transition-[box-shadow,transform] duration-200 hover:shadow-lifted hover:-translate-y-px;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md px-4 py-2 font-semibold transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* The gold piece: the one main action on a screen */
+  .btn-primary {
+    @apply btn bg-gold text-gold-ink border border-ink/80 hover:bg-gold-hover focus-visible:ring-ink;
+  }
+
+  .btn-secondary {
+    @apply btn bg-background-card text-text-primary border border-ink/80 hover:bg-background-hover focus-visible:ring-ink;
+  }
+
+  .btn-ghost {
+    @apply btn text-text-secondary hover:text-text-primary hover:bg-background-hover focus-visible:ring-ink;
+  }
+
+  .input {
+    @apply w-full rounded-md border border-ink/60 bg-background-card px-4 py-2 text-text-primary placeholder:text-text-muted focus:border-accent-felt focus:outline-none focus:ring-1 focus:ring-accent-felt;
+  }
+
+  .nav-link {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-md text-text-secondary hover:text-text-primary hover:bg-background-hover transition-colors;
+  }
+
+  /* Wide, heavy Archivo: the box-lid and rulebook title voice */
+  .title-wide {
+    font-stretch: 125%;
+    font-weight: 850;
+    letter-spacing: -0.02em;
+  }
+}
