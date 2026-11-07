@@ -1,0 +1,44 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+.venv/
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# OS
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Testing
+coverage/
+.pytest_cache/
+
+# Local design review captures and browser tool logs
