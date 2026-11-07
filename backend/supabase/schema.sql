@@ -358,3 +358,41 @@ CREATE POLICY "Service role can manage negotiations" ON negotiations
     FOR ALL USING (auth.role() = 'service_role');
 CREATE POLICY "Service role can manage negotiation messages" ON negotiation_messages
     FOR ALL USING (auth.role() = 'service_role');
+
+-- =============================================
+-- Strategy versions
+-- =============================================
+-- Every strategy edit makes a new version, and each decision records the version that made it.
+ALTER TABLE agents ADD COLUMN IF NOT EXISTS strategy_version INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE agent_decisions ADD COLUMN IF NOT EXISTS strategy_version INTEGER;  -- NULL: made before versions were tracked
+
+CREATE TABLE IF NOT EXISTS strategy_versions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    agent_id UUID NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
+    version INTEGER NOT NULL,
+    auction_instructions TEXT NOT NULL,
+    negotiation_style TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (agent_id, version)
+);
+-- Existing agents start at version 1 with their current strategy
+INSERT INTO strategy_versions (agent_id, version, auction_instructions, negotiation_style)
+    SELECT id, 1, auction_instructions, negotiation_style FROM agents
+    ON CONFLICT (agent_id, version) DO NOTHING;
+ALTER TABLE strategy_versions ENABLE ROW LEVEL SECURITY;  -- no policies: strategies are owner-only, served by the backend
+
+-- =============================================
+-- Experiments (strategy replays, never part of live play)
+-- =============================================
+CREATE TABLE IF NOT EXISTS experiments (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    agent_id UUID NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
+    version_a INTEGER NOT NULL,
+    version_b INTEGER,              -- NULL when B was an unsaved draft
+    draft_instructions TEXT,
+    cost INTEGER NOT NULL,
+    result JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_experiments_agent ON experiments(agent_id, created_at DESC);
+ALTER TABLE experiments ENABLE ROW LEVEL SECURITY;  -- no policies: only the backend touches it

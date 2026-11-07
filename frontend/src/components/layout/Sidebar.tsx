@@ -1,5 +1,5 @@
 import { NavLink, Link, useNavigate } from 'react-router-dom';
-import { LayoutGrid, Swords, Trophy, Plus, LogIn, LogOut } from 'lucide-react';
+import { LayoutGrid, Swords, Trophy, Plus, LogIn, LogOut, Lightbulb, FlaskConical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/useAuth';
 
@@ -7,6 +7,8 @@ const NAV = [
   { to: '/auctions', icon: Swords, label: 'Live arena', requiresAuth: false },
   { to: '/analytics', icon: Trophy, label: 'Standings', requiresAuth: false },
   { to: '/dashboard', icon: LayoutGrid, label: 'My agents', requiresAuth: true },
+  { to: '/intelligence', icon: Lightbulb, label: 'Intelligence', requiresAuth: true },
+  { to: '/experiments', icon: FlaskConical, label: 'Experiments', requiresAuth: true },
 ];
 
 /** The board margin: a rail on wide screens, a top bar on phones. */

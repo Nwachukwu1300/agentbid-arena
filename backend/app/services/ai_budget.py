@@ -39,3 +39,8 @@ async def try_negotiation_call(db: DatabaseService, today: str | None = None) ->
 async def try_builder_call(db: DatabaseService, user_id: str, today: str | None = None) -> bool:
     """One agent-builder call for this user. False once their daily cap is used up."""
     return await _spend(db, f"builder:{user_id}", get_settings().ai_daily_builder_calls_per_user, today)
+
+
+async def try_experiment(db: DatabaseService, user_id: str, today: str | None = None) -> bool:
+    """One experiment run for this user. False once their daily cap is used up."""
+    return await _spend(db, f"experiment:{user_id}", get_settings().ai_daily_experiments_per_user, today)

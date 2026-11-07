@@ -13,6 +13,7 @@ from app.routes import (
     agent_stats_router,
     analytics_router,
     seasons_router,
+    intelligence_router,
 )
 from app.services.job_spawner import get_job_spawner
 from app.routes.events import end_feeds_on_shutdown_signal
@@ -62,6 +63,7 @@ app.include_router(agent_builder_router)
 app.include_router(agent_stats_router)
 app.include_router(analytics_router)
 app.include_router(seasons_router)
+app.include_router(intelligence_router)
 
 
 @app.get("/")

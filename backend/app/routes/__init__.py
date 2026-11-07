@@ -7,6 +7,7 @@ from .agent_builder import router as agent_builder_router
 from .agent_stats import router as agent_stats_router
 from .analytics import router as analytics_router
 from .seasons import router as seasons_router
+from .intelligence import router as intelligence_router
 
 __all__ = [
     "agents_router",
@@ -18,4 +19,5 @@ __all__ = [
     "agent_stats_router",
     "analytics_router",
     "seasons_router",
+    "intelligence_router",
 ]

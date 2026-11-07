@@ -58,6 +58,7 @@ class Agent(AgentBase):
     credits: int = Field(default=1000)
     current_jobs: int = Field(default=0, ge=0, le=MAX_JOBS)
     is_active: bool = True
+    strategy_version: int = 1  # bumped on every strategy edit (strategy_versions table)
     created_at: datetime
     updated_at: datetime
 

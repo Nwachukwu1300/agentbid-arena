@@ -28,7 +28,9 @@ class AgentService:
         }
 
         result = await self.table.insert(data).execute()
-        return self._to_agent(result.data[0])
+        agent = self._to_agent(result.data[0])
+        await self._save_version(agent.id, 1, agent_data.auction_instructions, agent_data.negotiation_style)
+        return agent
 
     async def get_by_id(self, agent_id: UUID) -> Agent | None:
         result = await self.table.select("*").eq("id", str(agent_id)).execute()
@@ -67,11 +69,36 @@ class AgentService:
             return existing
 
         update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+        strategy_changed = any(
+            key in update_data and update_data[key] != getattr(existing, key)
+            for key in ("auction_instructions", "negotiation_style")
+        )
+        if strategy_changed:
+            update_data["strategy_version"] = existing.strategy_version + 1
 
         result = await self.table.update(update_data).eq("id", str(agent_id)).execute()
         if not result.data:
             return None
-        return self._to_agent(result.data[0])
+        agent = self._to_agent(result.data[0])
+        if strategy_changed:
+            # shortcut: the agent row and its version row are two writes; a crash between them loses one version's text
+            await self._save_version(agent.id, agent.strategy_version, agent.auction_instructions, agent.negotiation_style)
+        return agent
+
+    async def _save_version(self, agent_id, version: int, auction_instructions, negotiation_style) -> None:
+        await self.db.table("strategy_versions").insert({
+            "agent_id": str(agent_id),
+            "version": version,
+            "auction_instructions": auction_instructions,
+            "negotiation_style": negotiation_style,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }).execute()
+
+    async def get_versions(self, agent_id) -> list[dict]:
+        """Every strategy version of an agent, newest first. Owner-only data."""
+        return (await self.db.table("strategy_versions").select("*").eq("agent_id", str(agent_id)).order(
+            "version", desc=True
+        ).execute()).data
 
     async def delete(self, agent_id: UUID) -> bool:
         result = await self.table.delete().eq("id", str(agent_id)).execute()
@@ -96,6 +123,7 @@ class AgentService:
             credits=data["credits"],
             current_jobs=data["current_jobs"],
             is_active=data["is_active"],
+            strategy_version=data.get("strategy_version") or 1,
             created_at=data["created_at"],
             updated_at=data["updated_at"],
         )

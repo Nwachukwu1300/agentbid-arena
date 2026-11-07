@@ -6,3 +6,5 @@ export { AnalyticsPage } from './AnalyticsPage';
 export { AuthPage } from './AuthPage';
 export { CreateAgentPage } from './CreateAgentPage';
 export { AgentProfilePage } from './AgentProfilePage';
+export { IntelligencePage } from './IntelligencePage';
+export { ExperimentsPage } from './ExperimentsPage';

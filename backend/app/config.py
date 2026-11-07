@@ -55,6 +55,11 @@ class Settings(BaseSettings):
     ai_daily_agent_calls: int = 3000  # whole arena; agents pass once it is reached
     ai_daily_builder_calls_per_user: int = 30
     ai_daily_negotiation_calls: int = 2000  # whole arena; winners keep their bid once it is reached
+    ai_daily_experiments_per_user: int = 10  # each run makes about 2 x experiment_auctions AI calls
+
+    # Experiments: replay strategy versions on recent closed auctions (never part of live play)
+    experiment_cost: int = 20  # season credits taken from the agent per run
+    experiment_auctions: int = 10  # closed auctions replayed per run
 
     # Negotiation after the auction (all tunables in one place)
     negotiation_share: float = 0.3  # chance a winning bid goes to a negotiation with the client

@@ -16,12 +16,13 @@ import {
   Clock,
   BarChart3,
   MessagesSquare,
+  History,
 } from 'lucide-react';
 import { Layout } from '@/components/layout';
 import { SpecialtyBadge, StatCard, ProgressBar, PlayerToken } from '@/components/ui';
-import { agentsAPI, agentStatsAPI } from '@/lib/api';
+import { agentsAPI, agentStatsAPI, intelligenceAPI } from '@/lib/api';
 import { cn, formatCredits, formatTimeAgo } from '@/lib/utils';
-import type { Agent, AgentDecisionHistoryItem, AgentFullStats, AgentStats } from '@/types';
+import type { Agent, AgentDecisionHistoryItem, AgentFullStats, AgentStats, StrategyVersion } from '@/types';
 import { useAuth } from '@/context/useAuth';
 
 export function AgentProfilePage() {
@@ -41,6 +42,9 @@ export function AgentProfilePage() {
   const [editAuctionInstructions, setEditAuctionInstructions] = useState('');
   const [editNegotiationStyle, setEditNegotiationStyle] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+
+  // Strategy versions (owner only)
+  const [versions, setVersions] = useState<StrategyVersion[]>([]);
 
   // Delete confirmation
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -128,6 +132,12 @@ export function AgentProfilePage() {
   };
 
   const isOwner = !!user && !!agent && user.id === agent.user_id;
+  const liveVersion = agent?.strategy_version;
+
+  useEffect(() => {
+    if (!isOwner || !id) return;
+    intelligenceAPI.getVersions(id).then(setVersions).catch(() => setVersions([]));
+  }, [isOwner, id, liveVersion]); // refetch when a save makes a new version
   // Visitors came from an auction; the dashboard would bounce them to the login page
   const backTo = user ? '/dashboard' : '/auctions';
 
@@ -344,6 +354,34 @@ export function AgentProfilePage() {
                     {agent.negotiation_style || 'Default: negotiate fairly, accept a reasonable profit, walk away below cost.'}
                   </p>
                 )}
+              </div>
+            )}
+
+            {/* Strategy versions: every strategy edit is kept, owner only */}
+            {isOwner && versions.length > 0 && (
+              <div className="card p-6">
+                <h2 className="text-lg font-semibold text-text-primary flex items-center gap-2 mb-4">
+                  <History className="h-5 w-5 text-text-muted" />
+                  Strategy Versions
+                </h2>
+                <ul className="space-y-2">
+                  {versions.map((v) => (
+                    <li key={v.version} className="rounded-lg bg-background-tertiary/50 p-3">
+                      <div className="mb-1 flex flex-wrap items-center justify-between gap-2 text-sm">
+                        <span className="font-semibold text-text-primary">
+                          Version {v.version}
+                          {v.version === agent.strategy_version && <span className="ml-2 text-xs font-medium text-accent-felt">live</span>}
+                        </span>
+                        <span className="text-xs text-text-muted">{formatTimeAgo(v.created_at)}</span>
+                      </div>
+                      <p className="text-sm text-text-secondary line-clamp-2">{v.auction_instructions}</p>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-4 flex flex-wrap gap-4 text-sm">
+                  <Link to={`/intelligence?agent=${agent.id}`} className="font-semibold text-accent-felt hover:underline">Compare in Intelligence</Link>
+                  <Link to={`/experiments?agent=${agent.id}`} className="font-semibold text-accent-felt hover:underline">Test a change in Experiments</Link>
+                </div>
               </div>
             )}
 
