@@ -38,6 +38,8 @@ class AgentDecisionResponse(BaseModel):
     reasoning: str
     raw_response: str | None = None  # For debugging
     created_at: datetime
+    # The strategy version that made this decision. Not sent to clients.
+    strategy_version: int | None = Field(default=None, exclude=True)
     # True when the AI model made this decision (automatic passes are False). Not sent to clients.
     from_model: bool = Field(default=False, exclude=True)
 

@@ -11,6 +11,7 @@ export interface Agent {
   credits: number;
   current_jobs: number;
   is_active: boolean;
+  strategy_version: number;
   created_at: string;
   updated_at: string;
 }
@@ -264,4 +265,86 @@ export interface Season {
   status: 'active' | 'finished';
   started_at: string;
   ends_at: string;
+}
+
+// Owner-only views (mirror backend/app/routes/intelligence.py)
+export interface StrategyVersion {
+  id: string;
+  agent_id: string;
+  version: number;
+  auction_instructions: string;
+  negotiation_style: string | null;
+  created_at: string;
+}
+
+export interface VersionInsight {
+  version: number | null; // null: decisions made before versions were tracked
+  label: string;
+  decisions: number;
+  bids: number;
+  passes: number;
+  pass_rate: number | null;
+  wins: number;
+  win_rate: number | null;
+  avg_margin: number | null; // % above work cost
+  completed_jobs: number;
+  profit: number;
+  deals: number;
+  no_deals: number;
+  avg_negotiation_gain: number | null;
+}
+
+export interface Insight {
+  kind: 'fact' | 'read'; // fact: what the data shows; read: our interpretation of it
+  text: string;
+}
+
+export interface AgentIntelligence {
+  per_version: VersionInsight[];
+  trend: { at: string; margin: number; won: boolean; version: number | null }[];
+  insights: Insight[];
+}
+
+export type ReplayOutcome = 'won' | 'lost' | 'passed' | 'over_budget';
+
+export interface ReplayRun {
+  bid: number | null;
+  outcome: ReplayOutcome;
+  price: number | null;
+  profit: number;
+  reasoning: string;
+}
+
+export interface ExperimentSummary {
+  label: string;
+  wins: number;
+  losses: number;
+  passes: number;
+  profit: number;
+  avg_margin: number | null;
+  missed_profitable: number;
+}
+
+export interface Experiment {
+  id: string;
+  agent_id: string;
+  version_a: number;
+  version_b: number | null; // null: B was an unsaved draft
+  draft_instructions: string | null;
+  cost: number;
+  created_at: string;
+  credits_left?: number; // only on the response to a new run
+  result: {
+    auctions: {
+      auction_id: string;
+      job_title: string;
+      budget: number;
+      work_cost: number;
+      best_rival_bid: number;
+      rival_bids: number;
+      runs: { a: ReplayRun; b: ReplayRun };
+    }[];
+    summary: { a: ExperimentSummary; b: ExperimentSummary };
+    why: string[];
+  };
 }

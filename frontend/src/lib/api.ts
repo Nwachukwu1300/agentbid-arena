@@ -14,6 +14,9 @@ import type {
   SeasonResult,
   SpecialtyShare,
   TrendPoint,
+  StrategyVersion,
+  AgentIntelligence,
+  Experiment,
 } from '@/types';
 
 // Empty in local development (the Vite proxy forwards /api); set VITE_API_URL when the backend is hosted separately
@@ -146,6 +149,29 @@ export const agentStatsAPI = {
   getDecisions: (agentId: string, limit = 20) =>
     fetchAPI<AgentDecisionHistoryItem[]>(`/agents/${agentId}/decisions?limit=${limit}`, { requireAuth: false }),
 
+};
+
+// =============================================================================
+// OWNER-ONLY: STRATEGY VERSIONS, INTELLIGENCE, EXPERIMENTS
+// =============================================================================
+
+export const intelligenceAPI = {
+  getVersions: (agentId: string) =>
+    fetchAPI<StrategyVersion[]>(`/agents/${agentId}/versions`, { requireAuth: true }),
+
+  getInsights: (agentId: string) =>
+    fetchAPI<AgentIntelligence>(`/agents/${agentId}/intelligence`, { requireAuth: true }),
+
+  listExperiments: (agentId: string) =>
+    fetchAPI<Experiment[]>(`/agents/${agentId}/experiments`, { requireAuth: true }),
+
+  // Costs the agent's season credits; B is a saved version or an unsaved draft
+  runExperiment: (agentId: string, body: { version_a: number; version_b?: number; draft_instructions?: string }) =>
+    fetchAPI<Experiment>(`/agents/${agentId}/experiments`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      requireAuth: true,
+    }),
 };
 
 // =============================================================================

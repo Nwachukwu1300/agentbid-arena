@@ -12,6 +12,8 @@ const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ 
 const AnalyticsPage = lazy(() => import('@/pages/AnalyticsPage').then((m) => ({ default: m.AnalyticsPage })));
 const AuthPage = lazy(() => import('@/pages/AuthPage').then((m) => ({ default: m.AuthPage })));
 const CreateAgentPage = lazy(() => import('@/pages/CreateAgentPage').then((m) => ({ default: m.CreateAgentPage })));
+const IntelligencePage = lazy(() => import('@/pages/IntelligencePage').then((m) => ({ default: m.IntelligencePage })));
+const ExperimentsPage = lazy(() => import('@/pages/ExperimentsPage').then((m) => ({ default: m.ExperimentsPage })));
 const AgentProfilePage = lazy(() => import('@/pages/AgentProfilePage').then((m) => ({ default: m.AgentProfilePage })));
 
 function App() {
@@ -46,6 +48,24 @@ function App() {
           element={
             <ProtectedRoute>
               <CreateAgentPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Owner-only: insights and experiments about the player's own agents */}
+        <Route
+          path="/intelligence"
+          element={
+            <ProtectedRoute>
+              <IntelligencePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/experiments"
+          element={
+            <ProtectedRoute>
+              <ExperimentsPage />
             </ProtectedRoute>
           }
         />

@@ -1,5 +1,6 @@
 import asyncio
 import json
+import random
 import logging
 from uuid import UUID
 from datetime import datetime, timezone
@@ -333,24 +334,8 @@ Do not include any other text, markdown formatting, or explanation outside the J
                 created_at=datetime.now(timezone.utc),
             )
 
-        # Call OpenAI
-        decision, raw_response = None, None
-        try:
-            response = await self.client.chat.completions.create(
-                model=self.settings.openai_model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": "Make your decision now."},
-                ],
-                max_tokens=self.settings.openai_max_tokens,
-                temperature=self.settings.openai_temperature,
-            )
-            raw_response = response.choices[0].message.content
-            logger.debug(f"Agent {agent.name} raw response: {raw_response}")
-            decision = self._parse_decision(raw_response)
-        except Exception as e:
-            # The call is already paid for: fall through to a stored pass so the agent isn't asked again every round
-            logger.error(f"No usable AI decision for agent {agent.name}: {e}")
+        # The call is already paid for: a bad answer becomes a stored pass so the agent isn't asked again every round
+        decision, raw_response = await self.ask_model(system_prompt, agent.name)
 
         return AgentDecisionResponse(
             agent_id=agent_id,
@@ -362,7 +347,28 @@ Do not include any other text, markdown formatting, or explanation outside the J
             raw_response=raw_response if self.settings.debug else None,
             created_at=datetime.now(timezone.utc),
             from_model=True,
+            strategy_version=agent.strategy_version,
         )
+
+    async def ask_model(self, system_prompt: str, agent_name: str = "agent") -> tuple[AgentDecision | None, str | None]:
+        """One bid-or-pass call to the model. (None, raw) when the answer is unusable. Spends no budget itself."""
+        raw_response = None
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.settings.openai_model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": "Make your decision now."},
+                ],
+                max_tokens=self.settings.openai_max_tokens,
+                temperature=self.settings.openai_temperature,
+            )
+            raw_response = response.choices[0].message.content
+            logger.debug(f"Agent {agent_name} raw response: {raw_response}")
+            return self._parse_decision(raw_response), raw_response
+        except Exception as e:
+            logger.error(f"No usable AI decision for agent {agent_name}: {e}")
+            return None, raw_response
 
     async def _store_decision(self, decision: AgentDecisionResponse) -> None:
         """Store the agent decision in the database for analytics."""
@@ -373,6 +379,7 @@ Do not include any other text, markdown formatting, or explanation outside the J
                 "decision_type": decision.decision_type.value,
                 "bid_amount": decision.bid_amount,
                 "reasoning": decision.reasoning,
+                "strategy_version": decision.strategy_version,
                 "created_at": decision.created_at.isoformat(),
             }
             await self.decisions_table.insert(data).execute()
@@ -430,6 +437,8 @@ Do not include any other text, markdown formatting, or explanation outside the J
         # Filter by specialty if requested
         if specialty_match_only:
             agents = [a for a in agents if a.specialty == auction.job_specialty]
+        # Ties go to the earlier bid, so ask in a fresh random order each round rather than newest agent first
+        random.shuffle(agents)
 
         decisions = []
         for agent in agents:
