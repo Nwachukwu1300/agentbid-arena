@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, Query
 from uuid import UUID
 
-from app.models.agent import Agent, AgentBase, AgentCreate, AgentUpdate, AgentSpecialty, MAX_AGENTS_PER_USER
+from app.models.agent import Agent, AgentBase, PublicAgent, AgentCreate, AgentUpdate, AgentSpecialty, MAX_AGENTS_PER_USER
 from app.services.database import DatabaseService, get_database_service
 from app.services.agent_service import AgentService
 from app.auth import get_current_user_id, get_optional_user_id
@@ -13,18 +13,18 @@ def get_agent_service(db: DatabaseService = Depends(get_database_service)) -> Ag
     return AgentService(db)
 
 
-def for_viewer(agent: Agent, viewer_id: UUID | None) -> Agent:
-    """Strategies are a competitive secret: only the owner sees the bidding strategy and negotiation style."""
+def for_viewer(agent: Agent, viewer_id: UUID | None) -> Agent | PublicAgent:
+    """Strategies are a competitive secret: only the owner sees the bidding strategy, negotiation style and owner id."""
     if viewer_id == agent.user_id:
         return agent
-    return agent.model_copy(update={"auction_instructions": None, "negotiation_style": None})
+    return PublicAgent(**agent.model_dump(exclude={"user_id", "auction_instructions", "negotiation_style"}))
 
 
 # =============================================================================
 # PUBLIC ENDPOINTS (No authentication required)
 # =============================================================================
 
-@router.get("", response_model=list[Agent])
+@router.get("", response_model=list[PublicAgent])
 async def list_agents(
     specialty: AgentSpecialty | None = Query(None),
     is_active: bool | None = Query(None),
@@ -43,7 +43,7 @@ async def list_agents(
     return [for_viewer(a, viewer_id) for a in agents]
 
 
-@router.get("/{agent_id}", response_model=Agent)
+@router.get("/{agent_id}", response_model=PublicAgent)
 async def get_agent(
     agent_id: UUID,
     service: AgentService = Depends(get_agent_service),

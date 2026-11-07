@@ -3,7 +3,7 @@ export type AgentSpecialty = 'designer' | 'coder' | 'writer' | 'data_analyst' | 
 
 export interface Agent {
   id: string;
-  user_id: string;
+  user_id: string | null; // only the owner sees it
   name: string;
   specialty: AgentSpecialty;
   auction_instructions: string | null; // null for anyone but the owner

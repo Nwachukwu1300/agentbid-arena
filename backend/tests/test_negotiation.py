@@ -531,10 +531,12 @@ async def builder_and_style():
         r = client.put(f"/api/agents/{agent_id}", json={"negotiation_style": "Split the difference."})
         assert r.status_code == 200 and r.json()["negotiation_style"] == "Split the difference."
         assert client.get(f"/api/agents/{agent_id}").json()["negotiation_style"] == "Split the difference."
+        assert client.get(f"/api/agents/{agent_id}").json()["user_id"] == str(owner), "the owner still sees their own id"
         viewer["id"] = stranger
         seen = client.get(f"/api/agents/{agent_id}").json()
         assert seen["negotiation_style"] is None and seen["auction_instructions"] is None
         assert all(x["negotiation_style"] is None for x in client.get("/api/agents").json())
+        assert seen["user_id"] is None and all(x["user_id"] is None for x in client.get("/api/agents").json()), "owner id is hidden"
         too_long = client.put(f"/api/agents/{agent_id}", json={"negotiation_style": "x" * 2001})
         assert too_long.status_code == 422
     finally:

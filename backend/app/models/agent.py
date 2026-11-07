@@ -78,5 +78,10 @@ class Agent(AgentBase):
         return self.credits <= 0
 
 
+class PublicAgent(Agent):
+    """An agent as outsiders see it: the owner's id is hidden along with the strategy."""
+    user_id: UUID | None = None
+
+
 class AgentInDB(Agent):
     pass
