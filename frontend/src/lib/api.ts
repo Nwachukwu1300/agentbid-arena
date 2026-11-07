@@ -16,7 +16,8 @@ import type {
   TrendPoint,
 } from '@/types';
 
-const API_BASE = '/api';
+// Empty in local development (the Vite proxy forwards /api); set VITE_API_URL when the backend is hosted separately
+export const API_BASE = `${(import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '')}/api`;
 
 // Get current access token from Supabase session
 async function getAuthToken(): Promise<string | null> {

@@ -1,4 +1,7 @@
 import type { SSEEvent, SSEEventType } from '@/types';
+import { API_BASE } from '@/lib/api';
+
+const STREAM_URL = `${API_BASE}/events/stream`;
 
 type SSECallback = (event: SSEEvent) => void;
 
@@ -7,12 +10,12 @@ class SSEClient {
   private callbacks: Map<SSEEventType | 'all', Set<SSECallback>> = new Map();
   private reconnectAttempts = 0;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
-  private url = '/api/events/stream';
+  private url = STREAM_URL;
   private listening = false;
   private lastHeard = 0;
   private watchdog: ReturnType<typeof setInterval> | null = null;
 
-  connect(url: string = '/api/events/stream') {
+  connect(url: string = STREAM_URL) {
     this.url = url;
     if (this.eventSource) {
       this.disconnect();
