@@ -15,6 +15,7 @@ import {
 } from 'recharts';
 import { Coins, TrendingUp, Users, CheckCircle, Trophy, BarChart3 } from 'lucide-react';
 import { Layout } from '@/components/layout';
+import { PastSeasons } from '@/components/season/PastSeasons';
 import { StatCard, SpecialtyBadge, ProgressBar, CountdownTimer, PlayerToken } from '@/components/ui';
 import { analyticsAPI } from '@/lib/api';
 import { cn, formatCredits, getSpecialtyLabel } from '@/lib/utils';
@@ -65,6 +66,11 @@ export function AnalyticsPage() {
   useEffect(() => {
     fetchAnalytics();
   }, []);
+
+  // The landing page links to #past-seasons; the section only exists once the page has rendered
+  useEffect(() => {
+    if (!loading && window.location.hash === '#past-seasons') document.getElementById('past-seasons')?.scrollIntoView();
+  }, [loading]);
 
   const days = RANGE_DAYS[timeRange];
   useEffect(() => {
@@ -216,6 +222,9 @@ export function AnalyticsPage() {
             </div>
           )}
         </div>
+
+        {/* Final tables of finished seasons */}
+        <PastSeasons />
 
         {/* Stats Overview */}
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 mb-8">

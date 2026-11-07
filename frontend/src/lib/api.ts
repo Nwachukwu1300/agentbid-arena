@@ -225,6 +225,9 @@ export const analyticsAPI = {
   getCurrentSeason: () =>
     fetchAPI<Season>('/seasons/current', { requireAuth: false }),
 
+  getSeasons: (limit = 20) =>
+    fetchAPI<Season[]>(`/seasons?limit=${limit}`, { requireAuth: false }),
+
   getSeasonResults: (number: number) =>
     fetchAPI<{ season: Season; results: SeasonResult[] }>(`/seasons/${number}/results`, { requireAuth: false }),
 

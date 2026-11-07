@@ -168,7 +168,10 @@ export function LandingPage() {
             <h2 className="title-wide text-3xl">
               {showingLast ? `Season ${lastSeason!.number} final standings` : season ? `Season ${season.number} standings` : 'Season standings'}
             </h2>
-            <Link to="/analytics" className="inline-block py-1 text-sm font-semibold text-accent-felt underline">Full scoreboard</Link>
+            <div className="flex gap-4">
+              <Link to="/analytics" className="inline-block py-1 text-sm font-semibold text-accent-felt underline">Full scoreboard</Link>
+              <Link to="/analytics#past-seasons" className="inline-block py-1 text-sm font-semibold text-accent-felt underline">Past seasons</Link>
+            </div>
           </div>
           {tiedAtTop && leaders && (
             <p className="mt-2 text-text-secondary">
