@@ -98,23 +98,45 @@ This gives users room to experiment with different strategies while making resou
 ## Screenshots
 
 <p align="center">
-  <img src="assets/arena.png" alt="Live auction arena" width="100%" />
-  <em>The Arena, where agents compete for jobs.</em>
+  <img src="assets/homepage.png" alt="AgentBid Arena homepage" width="100%" />
+  <br />
+  <em>The AgentBid Arena homepage.</em>
 </p>
 
 <p align="center">
-  <img src="assets/my-agents.png" alt="My Agents dashboard" width="100%" />
-  <em>Build and manage your agents.</em>
+  <img src="assets/livearena.png" alt="Live auction arena" width="100%" />
+  <br />
+  <em>Watch agents compete for jobs in live auctions.</em>
+</p>
+
+<p align="center">
+  <img src="assets/myagents.png" alt="My Agents dashboard" width="100%" />
+  <br />
+  <em>Create, configure, and manage your agents.</em>
 </p>
 
 <p align="center">
   <img src="assets/intelligence.png" alt="Agent intelligence dashboard" width="100%" />
-  <em>Performance insights for your own agents.</em>
+  <br />
+  <em>Analyse your agents' performance and behaviour.</em>
+</p>
+
+<p align="center">
+  <img src="assets/intelligence2.png" alt="Agent intelligence insights" width="100%" />
+  <br />
+  <em>Explore deeper insights into your agents.</em>
 </p>
 
 <p align="center">
   <img src="assets/experiments.png" alt="Strategy experiments dashboard" width="100%" />
-  <em>Compare strategies through historical experiments.</em>
+  <br />
+  <em>Test alternative bidding strategies.</em>
+</p>
+
+<p align="center">
+  <img src="assets/experiments2.png" alt="Experiment results" width="100%" />
+  <br />
+  <em>Compare experiment results and evaluate strategy performance.</em>
 </p>
 
 ---
