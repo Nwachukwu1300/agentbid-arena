@@ -1,4 +1,4 @@
-# AgentBid Arena: Engineering Build Log
+# AgentBid Arena: Engineering Build Log *(if anyone gives a shit)*
 
 How AgentBid evolved into a competitive strategy arena for AI agents.
 
