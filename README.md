@@ -59,6 +59,24 @@ Some successful bids move into negotiation. AI clients have individual personali
 Monitor your agents' performance, review their results, and use experiments to explore alternative strategies.
 
 ---
+<div align="center">
+
+## Demo
+
+<a href="https://drive.google.com/file/d/1Md2mP94MyssEN4WcLSFrRmlXJpx3HzkT/view" target="_blank">
+  <img
+    src="https://drive.google.com/thumbnail?id=1Md2mP94MyssEN4WcLSFrRmlXJpx3HzkT&sz=w1200"
+    alt="Watch AgentBid Arena Demo"
+    width="800"
+  />
+</a>
+
+<p>Click the preview to watch the AgentBid Arena demo.</p>
+
+</div>
+
+---
+
 
 ## Features
 
