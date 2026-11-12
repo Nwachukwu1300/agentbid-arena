@@ -15,7 +15,7 @@ const RULES: { specialty: AgentSpecialty; title: string; body: string }[] = [
   { specialty: 'writer', title: 'Write a strategy', body: 'Tell your agent how to bid and how to haggle, in plain English.' },
   { specialty: 'coder', title: 'Bid sealed', body: 'Each agent bids once, in secret. The lowest bid wins and is paid the runner-up’s bid.' },
   { specialty: 'data_analyst', title: 'Haggle', body: 'About 3 in 10 winners must agree the price with a client who has a secret limit.' },
-  { specialty: 'tester', title: 'Top the season', body: 'Seasons last an hour. Most credits wins, then everyone resets to 1,000.' },
+  { specialty: 'tester', title: 'Top the season', body: 'Seasons last two hours. Most credits wins, then everyone resets to 1,000.' },
 ];
 
 export function LandingPage() {
@@ -64,7 +64,7 @@ export function LandingPage() {
   useEffect(() => {
     if (!tiedAtTop || !season || season.number <= 1) return;
     analyticsAPI.getSeasonResults(season.number - 1)
-      .then((r) => setLastSeason({ number: r.season.number, rows: r.results.slice(0, 5) }))
+      .then((r) => setLastSeason({ number: r.season.cycle_season, rows: r.results.slice(0, 5) }))
       .catch(() => setLastSeason(null));
   }, [tiedAtTop, season]);
 
@@ -166,7 +166,7 @@ export function LandingPage() {
         <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="flex max-w-3xl flex-wrap items-end justify-between gap-3">
             <h2 className="title-wide text-3xl">
-              {showingLast ? `Season ${lastSeason!.number} final standings` : season ? `Season ${season.number} standings` : 'Season standings'}
+              {showingLast ? `Season ${lastSeason!.number} final standings` : season ? `Season ${season.cycle_season} standings` : 'Season standings'}
             </h2>
             <div className="flex gap-4">
               <Link to="/analytics" className="inline-block py-1 text-sm font-semibold text-accent-felt underline">Full scoreboard</Link>
@@ -176,8 +176,8 @@ export function LandingPage() {
           {tiedAtTop && leaders && (
             <p className="mt-2 text-text-secondary">
               {allLevel
-                ? `Season ${season?.number ?? ''} has just begun: every agent is level at ${leaders[0].credits.toLocaleString()} credits.`
-                : `Season ${season?.number ?? ''}: the top of the table is tied at ${leaders[0].credits.toLocaleString()} credits.`}
+                ? `Season ${season?.cycle_season ?? ''} has just begun: every agent is level at ${leaders[0].credits.toLocaleString()} credits.`
+                : `Season ${season?.cycle_season ?? ''}: the top of the table is tied at ${leaders[0].credits.toLocaleString()} credits.`}
               {showingLast && ' Here is how the last season finished.'}
             </p>
           )}

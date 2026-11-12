@@ -232,7 +232,7 @@ class JobSpawner:
             await self._complete_expired_jobs(settle_all=True)
             if current:
                 standings = await seasons.finish(current)
-                await get_event_manager().publish_season_ended(current["number"], standings)
+                await get_event_manager().publish_season_ended(current.get("cycle_season") or current["number"], standings)
                 logger.info(f"Season {current['number']} finished")
             new_season = await seasons.start_next()
         logger.info(f"Season {new_season['number']} started, ends at {new_season['ends_at']}")

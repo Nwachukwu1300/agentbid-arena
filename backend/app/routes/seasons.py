@@ -16,6 +16,12 @@ async def list_seasons(limit: int = 20, service: SeasonService = Depends(get_sea
     return await service.list_seasons(limit)
 
 
+@router.get("/champions")
+async def get_champions(service: SeasonService = Depends(get_season_service)) -> list[dict]:
+    """The champion of every finished cycle of seasons, newest first."""
+    return await service.champions()
+
+
 @router.get("/current")
 async def get_current_season(service: SeasonService = Depends(get_season_service)) -> dict:
     """The running season (number, started_at, ends_at). Live standings: /api/analytics/leaderboard."""
