@@ -10,6 +10,7 @@ import type {
   AgentFullStats,
   MarketStats,
   LeaderboardEntry,
+  CycleChampion,
   Season,
   SeasonResult,
   SpecialtyShare,
@@ -253,6 +254,9 @@ export const analyticsAPI = {
 
   getSeasons: (limit = 20) =>
     fetchAPI<Season[]>(`/seasons?limit=${limit}`, { requireAuth: false }),
+
+  getChampions: () =>
+    fetchAPI<CycleChampion[]>('/seasons/champions', { requireAuth: false }),
 
   getSeasonResults: (number: number) =>
     fetchAPI<{ season: Season; results: SeasonResult[] }>(`/seasons/${number}/results`, { requireAuth: false }),

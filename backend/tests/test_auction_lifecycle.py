@@ -353,6 +353,7 @@ async def season_rollover(db, fake, spawner):
         await spawner._check_season()  # no season yet: starts season 1 and resets credits
         season1 = await seasons.get_current()
         assert season1 and season1["number"] == 1
+        assert season1["cycle"] == 1 and season1["cycle_season"] == 1, "the first season opens cycle 1"
         assert all(a.credits == 1000 for a in await agents.get_all()), "season start resets credits"
 
         star = roster[1].id
@@ -375,6 +376,27 @@ async def season_rollover(db, fake, spawner):
     assert season2 and season2["number"] == 2
     assert all(a.credits == 1000 for a in await agents.get_all()), "new season resets credits"
     assert all(a.current_jobs == 0 for a in await agents.get_all()), "rollover heals job counts once all work is paid"
+    assert season2["cycle"] == 1 and season2["cycle_season"] == 2
+
+    # The shown count restarts after 20 seasons; seasons from before cycles (cycle 0) roll into cycle 1
+    rows = fake.tables["seasons"]
+    rows[-1].update(status="finished", cycle_season=20)
+    season3 = await seasons.start_next()
+    assert (season3["number"], season3["cycle"], season3["cycle_season"]) == (3, 2, 1), "a full cycle starts the next at 1"
+    season3["status"] = "finished"
+    for row in rows:
+        row.update(cycle=0, cycle_season=row["number"])
+    season4 = await seasons.start_next()
+    assert (season4["cycle"], season4["cycle_season"]) == (1, 1), "the first season after cycles existed is Season 1"
+
+    # Champions: season 1 won outright by the star, season 2 level at the top (nobody), season 3 won by the star
+    tied = [{"season_id": rows[1]["id"], "agent_name": n, "specialty": "coder", "rank": r, "final_credits": 1000} for r, n in ((1, "A"), (2, "B"))]
+    fake.tables["season_results"].extend(tied)
+    fake.tables["season_results"].append({"season_id": season3["id"], "agent_name": results[0]["agent_name"],
+                                          "specialty": results[0]["specialty"], "rank": 1, "final_credits": 1200})
+    champs = await seasons.champions()
+    assert champs == [{"cycle": 0, "seasons": 3, "champion": results[0]["agent_name"], "specialty": results[0]["specialty"],
+                       "season_wins": 2}], champs
     print("season rollover: all checks passed")
 
 

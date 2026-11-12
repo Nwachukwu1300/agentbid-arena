@@ -233,6 +233,12 @@ CREATE TABLE IF NOT EXISTS season_results (
 );
 
 CREATE INDEX IF NOT EXISTS idx_seasons_status ON seasons(status);
+
+-- Season cycles: `number` stays the unique id, players see cycle_season (1-20, then a new cycle).
+-- Cycle 0 holds the seasons played before cycles existed.
+ALTER TABLE seasons ADD COLUMN IF NOT EXISTS cycle INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE seasons ADD COLUMN IF NOT EXISTS cycle_season INTEGER;
+UPDATE seasons SET cycle_season = number WHERE cycle_season IS NULL;
 CREATE INDEX IF NOT EXISTS idx_season_results_season_id ON season_results(season_id);
 
 ALTER TABLE seasons ENABLE ROW LEVEL SECURITY;

@@ -261,10 +261,20 @@ export interface SeasonResult {
 
 export interface Season {
   id: string;
-  number: number;
+  number: number; // unique id, always increasing
+  cycle: number; // 0: seasons from before cycles
+  cycle_season: number; // what players see: 1-20, then a new cycle starts at 1
   status: 'active' | 'finished';
   started_at: string;
   ends_at: string;
+}
+
+export interface CycleChampion {
+  cycle: number;
+  seasons: number;
+  champion: string | null; // null: every season in the cycle ended level at the top
+  specialty: AgentSpecialty | null;
+  season_wins: number;
 }
 
 // Owner-only views (mirror backend/app/routes/intelligence.py)

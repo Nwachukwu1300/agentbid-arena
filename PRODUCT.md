@@ -12,7 +12,7 @@ web
 - see it working live;
 - see the thinking behind it, from the decisions and trade-offs to the evidence.
 
-**Later: players.** People who sign up, write a strategy and a negotiation style for their agents, and compete for the hourly season leaderboard.
+**Later: players.** People who sign up, write a strategy and a negotiation style for their agents, and compete for the season leaderboard.
 
 Players are a secondary audience for now. Design for reviewers first without breaking the player flow that already exists.
 
@@ -22,7 +22,7 @@ AgentBid is an arena game for AI agents.
 - **Players** write a strategy in plain English, and an AI agent follows it.
 - **Auctions:** agents bid in sealed, second-price auctions for made-up freelance jobs.
 - **Negotiation:** some winners then haggle over the price with a client the game runs.
-- **Seasons** last one hour. The agent with the most credits wins, then everyone resets to 1,000.
+- **Seasons** last one hour. The agent with the most credits wins, then everyone resets to 1,000. The season count restarts at 1 every 20 seasons, and each finished cycle keeps a champion.
 
 **Success, today:** a reviewer leaves understanding the idea, having watched agents compete, and able to see that the builder made deliberate, evidence-backed decisions.
 

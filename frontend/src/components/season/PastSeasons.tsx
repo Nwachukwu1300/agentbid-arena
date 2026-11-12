@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { History, Trophy } from 'lucide-react';
+import { Crown, History, Trophy } from 'lucide-react';
 import { PlayerToken, SpecialtyBadge } from '@/components/ui';
 import { analyticsAPI } from '@/lib/api';
 import { cn } from '@/lib/utils';
-import type { Season, SeasonResult } from '@/types';
+import type { CycleChampion, Season, SeasonResult } from '@/types';
 
 const TOP_ROWS = 10;
 
@@ -18,11 +18,14 @@ export function PastSeasons() {
   const [picked, setPicked] = useState<number | null>(null);
   const [results, setResults] = useState<SeasonResult[] | null>(null);
   const [showAll, setShowAll] = useState(false);
+  const [champions, setChampions] = useState<CycleChampion[]>([]);
 
   useEffect(() => {
+    analyticsAPI.getChampions().then(setChampions).catch(() => setChampions([]));
     analyticsAPI.getSeasons()
       .then((all) => {
-        const finished = all.filter((s) => s.status === 'finished');
+        // Only the newest cycle gets tabs; older cycles are summed up by their champion below
+        const finished = all.filter((s) => s.status === 'finished' && s.cycle === all[0].cycle);
         setSeasons(finished);
         setPicked(finished[0]?.number ?? null);
       })
@@ -50,7 +53,7 @@ export function PastSeasons() {
         <History className="h-5 w-5 text-ink" />
         <div>
           <h2 className="font-semibold text-text-primary">Past seasons</h2>
-          <p className="text-sm text-text-muted">The final table of every finished season.</p>
+          <p className="text-sm text-text-muted">The final table of every finished season in this cycle of 20.</p>
         </div>
       </div>
 
@@ -61,7 +64,7 @@ export function PastSeasons() {
       ) : seasons.length === 0 ? (
         <div className="py-10 text-center">
           <History className="mx-auto mb-3 h-10 w-10 text-text-muted opacity-50" />
-          <p className="text-text-secondary">No season has finished yet. The first final table appears here when the current one ends.</p>
+          <p className="text-text-secondary">No season of this cycle has finished yet. The first final table appears here when the current one ends.</p>
         </div>
       ) : (
         <>
@@ -77,12 +80,12 @@ export function PastSeasons() {
                   s.number === picked ? 'border-ink bg-gold text-gold-ink' : 'border-ink/25 bg-background-card text-text-secondary hover:border-ink/50'
                 )}
               >
-                Season {s.number}
+                Season {s.cycle_season}
               </button>
             ))}
           </div>
 
-          {season && <p className="mb-3 text-sm text-text-muted">Season {season.number} final standings, ended {formatEnded(season)}.</p>}
+          {season && <p className="mb-3 text-sm text-text-muted">Season {season.cycle_season} final standings, ended {formatEnded(season)}.</p>}
 
           {results === null ? (
             <div className="h-48 animate-pulse rounded-md bg-background-tertiary/50" aria-label="Loading the final table" />
@@ -132,6 +135,31 @@ export function PastSeasons() {
             </>
           )}
         </>
+      )}
+
+      {champions.length > 0 && (
+        <div className="mt-8 border-t border-border pt-6">
+          <h3 className="mb-3 flex items-center gap-2 font-semibold text-text-primary">
+            <Crown className="h-4 w-4 text-ink" aria-hidden="true" />
+            Cycle champions
+          </h3>
+          <ul className="space-y-2">
+            {champions.map((c) => (
+              <li key={c.cycle} className="flex flex-wrap items-center gap-2 text-sm text-text-secondary">
+                <span className="font-semibold text-text-primary">{c.cycle === 0 ? 'Early seasons' : `Cycle ${c.cycle}`}:</span>
+                {c.champion && c.specialty ? (
+                  <>
+                    <PlayerToken specialty={c.specialty} size="sm" />
+                    <span className="font-medium text-text-primary">{c.champion}</span>
+                    <span>won {c.season_wins} of {c.seasons} seasons</span>
+                  </>
+                ) : (
+                  <span>no outright winner in {c.seasons} seasons</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );

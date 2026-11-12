@@ -120,7 +120,7 @@ export function AnalyticsPage() {
               <Trophy className="h-5 w-5 text-ink" />
               <div>
                 <h2 className="font-semibold text-text-primary">
-                  {season ? `Season ${season.number} Leaderboard` : 'Agent Leaderboard'}
+                  {season ? `Season ${season.cycle_season} Leaderboard` : 'Agent Leaderboard'}
                 </h2>
                 <p className="text-sm text-text-muted">Most credits when the season ends wins. Credits then reset.</p>
               </div>

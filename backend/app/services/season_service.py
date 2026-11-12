@@ -30,6 +30,46 @@ class SeasonService:
     async def get_results(self, season_id: str) -> list[dict]:
         return (await self.results.select("*").eq("season_id", season_id).order("rank").execute()).data
 
+    async def champions(self) -> list[dict]:
+        """One champion per finished cycle: the agent with the most outright season wins, newest cycle first."""
+        current = await self.get_current()
+        query = self.seasons.select("id, cycle").eq("status", "finished")
+        if current:
+            query = query.lt("cycle", current.get("cycle") or 0)
+        seasons = (await query.execute()).data
+        if not seasons:
+            return []
+        cycle_of = {s["id"]: s.get("cycle") or 0 for s in seasons}
+        top_two: dict[str, list[dict]] = defaultdict(list)
+        rows = (await self.results.select("season_id, agent_name, specialty, rank, final_credits")
+                .in_("season_id", list(cycle_of)).lt("rank", 3).execute()).data
+        for row in rows:
+            top_two[row["season_id"]].append(row)
+
+        wins: dict[int, dict[str, dict]] = defaultdict(dict)  # cycle -> agent name -> tally
+        for season_id, pair in top_two.items():
+            pair.sort(key=lambda r: r["rank"])
+            if len(pair) > 1 and pair[0]["final_credits"] == pair[1]["final_credits"]:
+                continue  # a level top crowns nobody, same rule as the Past seasons table
+            winner = pair[0]
+            tally = wins[cycle_of[season_id]].setdefault(
+                winner["agent_name"], {"specialty": winner["specialty"], "wins": 0, "credits": 0})
+            tally["wins"] += 1
+            tally["credits"] += winner["final_credits"]
+
+        played = Counter(cycle_of.values())
+        out = []
+        for cycle in sorted(played, reverse=True):
+            best = max(wins[cycle].items(), key=lambda kv: (kv[1]["wins"], kv[1]["credits"]), default=None)
+            out.append({
+                "cycle": cycle,
+                "seasons": played[cycle],
+                "champion": best[0] if best else None,
+                "specialty": best[1]["specialty"] if best else None,
+                "season_wins": best[1]["wins"] if best else 0,
+            })
+        return out
+
     async def standings(self, since: str | None) -> list[dict]:
         """Live ranking by credits. Wins and win rate count auctions closed since `since`."""
         agents = await self.agent_service.get_all(limit=1000)
@@ -108,10 +148,17 @@ class SeasonService:
             "credits": self.settings.default_agent_credits, "current_jobs": 0,
         }).gte("current_jobs", 0).execute()
 
-        last = (await self.seasons.select("number").order("number", desc=True).range(0, 0).execute()).data
+        last = (await self.seasons.select("number, cycle, cycle_season").order("number", desc=True).range(0, 0).execute()).data
+        prev = last[0] if last else {"number": 0, "cycle": 0, "cycle_season": 0}
+        cycle, cycle_season = prev.get("cycle") or 0, prev.get("cycle_season") or 0
+        # `number` stays the unique id; players see cycle_season, which restarts at 1 (cycle 0 = seasons from before cycles)
+        if cycle == 0 or cycle_season >= self.settings.season_cycle_length:
+            cycle, cycle_season = cycle + 1, 0
         now = datetime.now(timezone.utc)
         return (await self.seasons.insert({
-            "number": last[0]["number"] + 1 if last else 1,
+            "number": prev["number"] + 1,
+            "cycle": cycle,
+            "cycle_season": cycle_season + 1,
             "status": "active",
             "started_at": now.isoformat(),
             "ends_at": (now + timedelta(seconds=self.settings.season_duration_seconds)).isoformat(),

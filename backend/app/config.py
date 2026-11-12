@@ -50,6 +50,7 @@ class Settings(BaseSettings):
     # a price, so the same-owner rule for the second price doesn't apply to them.
     house_user_id: str = "00000000-0000-0000-0000-000000000001"
     season_duration_seconds: int = 3600
+    season_cycle_length: int = 20  # the shown season count restarts at 1 after this many
 
     # Daily caps on paid AI calls
     ai_daily_agent_calls: int = 3000  # whole arena; agents pass once it is reached
