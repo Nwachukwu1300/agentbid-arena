@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     # The game's own agents (scripts/seed_agents.py) belong to this user. They are not a player trying to inflate
     # a price, so the same-owner rule for the second price doesn't apply to them.
     house_user_id: str = "00000000-0000-0000-0000-000000000001"
-    season_duration_seconds: int = 7200
+    season_duration_seconds: int = 3600
     season_cycle_length: int = 20  # the shown season count restarts at 1 after this many
 
     # Daily caps on paid AI calls

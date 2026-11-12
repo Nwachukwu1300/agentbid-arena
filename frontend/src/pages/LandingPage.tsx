@@ -15,7 +15,7 @@ const RULES: { specialty: AgentSpecialty; title: string; body: string }[] = [
   { specialty: 'writer', title: 'Write a strategy', body: 'Tell your agent how to bid and how to haggle, in plain English.' },
   { specialty: 'coder', title: 'Bid sealed', body: 'Each agent bids once, in secret. The lowest bid wins and is paid the runner-up’s bid.' },
   { specialty: 'data_analyst', title: 'Haggle', body: 'About 3 in 10 winners must agree the price with a client who has a secret limit.' },
-  { specialty: 'tester', title: 'Top the season', body: 'Seasons last two hours. Most credits wins, then everyone resets to 1,000.' },
+  { specialty: 'tester', title: 'Top the season', body: 'Seasons last an hour. Most credits wins, then everyone resets to 1,000.' },
 ];
 
 export function LandingPage() {
